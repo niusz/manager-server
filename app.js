@@ -6,13 +6,15 @@ const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const log4js = require('./utils/log4j')
-const index = require('./routes/index')
 const users = require('./routes/users')
+const router = require('koa-router')()
+const jwt = require('jsonwebtoken')
 
 
 // error handler
 onerror(app)
 
+require('./config/db')
 // middlewares
 app.use(bodyparser({
   enableTypes: ['json', 'form', 'text']
@@ -25,19 +27,24 @@ app.use(views(__dirname + '/views', {
   extension: 'pug'
 }))
 
-app.use(() => {
-  ctx.body = 'hello'
-})
+
 // logger
 app.use(async (ctx, next) => {
-
+  log4js.info()
+  log4js.info(`get params:${JSON.stringify(ctx.request.query)}`)
+  log4js.info(`post params:${JSON.stringify(ctx.request.body)}`)
   await next()
-  log4js.info(`log output`)
+})
+router.prefix('/api')
+router.get('/leave/count', (ctx) => {
+  const token = ctx.request.headers.authorization.split(' ')[1]
+  const payload = jwt.verify(token, 'imooc')
+  ctx.body = payload
 })
 
-// routes
-app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
+router.use(users.routes(), users.allowedMethods())
+
+app.use(router.routes(), router.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {

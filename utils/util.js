@@ -8,7 +8,7 @@ const CODE = {
     USER_ACCOUNT_ERROR: 20001,//账号或密码错误
     USER_LOGIN_ERROR: 30001, //用户未登录
     BUSINESS_ERROR: 40001, //业务请求失败
-    AUTH_ERROR: 50001, //认证失败或TOKEN过期
+    AUTH_ERROR: 500001, //认证失败或TOKEN过期
 }
 
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
             code, data, msg
         }
     },
-    fail(msg = '', code = CODE.BUSINESS_ERROR) {
+    fail(msg = '', code = CODE.BUSINESS_ERROR, data = "") {
         log4js.debug(msg)
         return {
             code, data, msg
